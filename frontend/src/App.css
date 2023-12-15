@@ -1,0 +1,42 @@
+@font-face {
+  font-family: 'Garet';
+  src: url('./assets/Garet-Book.woff') format('woff');
+}
+
+#root {
+  background-color: rgb(218, 218, 218);
+  margin: 0;
+}
+
+.right {
+  font-family: 'Garet';
+}
+
+.messagemain {
+  background-image: url('assets/background.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.selecteduser {
+  background-color: rgb(226, 225, 225);
+}
+
+.messages::-webkit-scrollbar {
+  display: none;
+}
+
+.messages {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.userlist::-webkit-scrollbar {
+  display: none;
+}
+
+.userlist {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  max-height: 
+}

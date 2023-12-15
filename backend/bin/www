@@ -1,0 +1,146 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('backend:server');
+var http = require('http');
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
+
+const { Server } = require("socket.io");
+const Message = require("../models/message");
+const Conversation = require("../models/conversation");
+
+const io = new Server(server, {
+  cors: { origin: "*" }
+});
+
+// Socket.io
+io.on("connection", (socket) => {
+  console.log("A user connected");
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
+
+  socket.on("join_room", (data) => {
+    socket.join(data);
+    console.log("User joined room: " + data);
+  });
+
+  socket.on("message", async (data,callback) => {
+    const newMessage = new Message({
+      body: data.message,
+      conversation_hash: data.roomid,
+      sender: data.sender,
+    });
+
+    const conversations = await Conversation.find({conversation_hash: data.roomid}).exec();
+
+    conversations[0].last_message = data.message;
+    conversations[0].last_sent_time = Date.now();
+    conversations[1].last_message = data.message;
+    conversations[1].last_sent_time = Date.now();
+
+    // Adjusting unread count of the conversation
+    if(conversations[0].owner == data.sender){
+      conversations[0].unread_count = 0;
+    }
+    else{
+      conversations[0].unread_count += 1;
+    }
+
+    if(conversations[1].owner == data.sender){
+      conversations[1].unread_count = 0;
+    }
+    else{
+      conversations[1].unread_count += 1;
+    }
+
+    
+    await Promise.all([newMessage.save(),conversations[0].save(),conversations[1].save()]);
+    socket.to(data.roomid).emit("receive_message", data.message);
+    callback({status: 'success'});
+  });
+});
