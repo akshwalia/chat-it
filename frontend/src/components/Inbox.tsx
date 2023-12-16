@@ -26,6 +26,7 @@ export default function Inbox({inbox, setRoomid, setCurrentUserInfo, setFirstLoa
 
                 return (
                     <Userlist id={234} 
+                        owner={conversation.owner}
                         hash={conversation.conversation_hash} 
                         name={conversation.friend_name} 
                         message={conversation.last_message} 

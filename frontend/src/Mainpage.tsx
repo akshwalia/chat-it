@@ -21,7 +21,7 @@ export default function Mainpage() {
     const [inbox, setInbox] = useState([]);
     const [messages, setMessages] = useState([]);
     const [roomid, setRoomid] = useState('');
-    const [currentUserInfo, setCurrentUserInfo] = useState({ id: '', name: '' });
+    const [currentUserInfo, setCurrentUserInfo] = useState({ id: '', name: '', _id: '' });
     const [showEmoji, setShowEmoji] = useState(false);
     const [loading, setLoading] = useState(true);
     const [firstLoad, setFirstLoad] = useState(true);
@@ -43,6 +43,7 @@ export default function Mainpage() {
         }
         token = `Bearer ${token}`;
 
+
         async function checkAuth() {
             try {
                 const response = await axios.get('http://localhost:3000/inbox', {
@@ -54,6 +55,8 @@ export default function Mainpage() {
                 setInbox(response.data.conversations);
                 console.log(response.data.conversations);
                 setLoading(false);
+                console.log('A user has opened the main page');
+                socket.emit('join_room', response.data.user._id);
             }
             catch (err) {
                 alert('Please Log In again')
@@ -69,11 +72,15 @@ export default function Mainpage() {
         socket.on('receive_message', (data) => {
             setMessages((messages) => [...messages, { body: data, sender: 0 }]);
             setReload((reload) => reload + 1);
-        })
+        });
 
+        socket.on('reload_conversations', () => {
+            setReload((reload) => reload + 1);
+        });
 
         return () => {
             socket.off('receive_message');
+            socket.off('reload_conversations');
         }
     }, [socket]);
 
@@ -100,6 +107,7 @@ export default function Mainpage() {
             }
         }
         getMessages();
+
     }, [roomid]);
 
     function handleEmojiClick() {
@@ -115,7 +123,7 @@ export default function Mainpage() {
 
         setMessages(temp);
         e.target.message.value = '';
-        const response = await socket.emitWithAck('message', { message, roomid, sender: userInfo._id });
+        const response = await socket.emitWithAck('message', { message, roomid, sender: userInfo._id, receiver: currentUserInfo._id });
         setReload(reload + 1);
     }
 
