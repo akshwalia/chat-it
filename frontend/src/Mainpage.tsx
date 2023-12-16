@@ -87,7 +87,7 @@ export default function Mainpage() {
     //SOCKET for joining room and getting messages
     useEffect(() => {
         console.log('joining room');
-        
+
         socket.emit('join_room', roomid);
 
         async function getMessages() {
@@ -143,57 +143,57 @@ export default function Mainpage() {
         <>
 
             <div className="mainwrapper flex w-screen" onClick={handleOutsideClick}>
-                <div className="sidebar bg-white h-screen flex-1">
+                <div className="sidebar bg-white h-screen flex-1 flex flex-col">
 
                     <SidebarHeader userInfo={userInfo} setShowAddFriend={setShowAddFriend} setShowRequests={setShowRequests} />
 
-                    <div className="searchbar p-3 mx-5 my-2 bg-[#e4e4e4] flex gap-3 items-center rounded-lg">
+                    <div className="searchbar p-3 mx-5 my-2 bg-[#e4e4e4] flex gap-3 items-center rounded-lg flex-grow-0 flex-shrink-0" >
                         <i className="fa-solid fa-magnifying-glass" style={{ color: "#707070" }}></i>
                         <input type="text" name="searchusers" id="searchusers" className="bg-transparent outline-none placeholder:text-[#696969]" placeholder="Search here..." />
                     </div>
 
-                    <Inbox inbox={inbox} setRoomid={setRoomid} setCurrentUserInfo={setCurrentUserInfo} setFirstLoad={setFirstLoad}/>
+                    <Inbox inbox={inbox} setRoomid={setRoomid} setCurrentUserInfo={setCurrentUserInfo} setFirstLoad={setFirstLoad} />
                 </div>
                 <div className="messagemain h-screen flex-3 flex flex-col justify-between">
-                    {firstLoad? null :
+                    {firstLoad ? null :
                         <>
                             <MessageHeader currentUserInfo={currentUserInfo} />
 
-                            <div className="wrapper">
-                                <ChatArea messages={messages} showEmoji={showEmoji} setShowEmoji={setShowEmoji} userInfo={userInfo} />
 
-                                <div className="messagebar justify-self-end px-2">
-                                    <form onSubmit={handleMessageSubmit} autoComplete="off">
-                                        <div className="messageinput flex items-center justify-between gap-4 ">
-                                            <div className="flex justify-between w-full bg-white px-5 py-3 rounded-md">
-                                                <input type="text" name="message" id="message" className="bg-transparent outline-none w-full placeholder:text-[#696969]" placeholder="Type a message..." />
-                                                <div className="flex items-center gap-2">
-                                                    <div className="option w-7 h-7 rounded-[50%] border-primary-blue border-[2px] flex items-center justify-center cursor-pointer">
-                                                        <i className="fa-solid fa-plus" style={{ color: "#3978d3" }}></i>
-                                                    </div>
-                                                    <div
-                                                        className="option w-7 h-7 rounded-[50%] border-primary-blue border-[2px] flex items-center justify-center cursor-pointer"
-                                                        onClick={handleEmojiClick}
-                                                    >
-                                                        <i className="fa-solid fa-smile" style={{ color: "#3978d3" }}></i>
-                                                    </div>
-                                                    <div className="option w-7 h-7 rounded-[50%] border-primary-blue border-[2px] flex items-center justify-center cursor-pointer">
-                                                        <i className="fa-solid fa-paperclip" style={{ color: "#3978d3" }}></i>
-                                                    </div>
+                            <ChatArea messages={messages} showEmoji={showEmoji} setShowEmoji={setShowEmoji} userInfo={userInfo} />
+
+                            <div className="messagebar flex-grow-0 flex-shrink-0 justify-self-end px-2">
+                                <form onSubmit={handleMessageSubmit} autoComplete="off">
+                                    <div className="messageinput flex items-center justify-between gap-4 ">
+                                        <div className="flex justify-between w-full bg-white px-5 py-3 rounded-md">
+                                            <input type="text" name="message" id="message" className="bg-transparent outline-none w-full placeholder:text-[#696969]" placeholder="Type a message..." />
+                                            <div className="flex items-center gap-2">
+                                                <div className="option w-7 h-7 rounded-[50%] border-primary-blue border-[2px] flex items-center justify-center cursor-pointer">
+                                                    <i className="fa-solid fa-plus" style={{ color: "#3978d3" }}></i>
+                                                </div>
+                                                <div
+                                                    className="option w-7 h-7 rounded-[50%] border-primary-blue border-[2px] flex items-center justify-center cursor-pointer"
+                                                    onClick={handleEmojiClick}
+                                                >
+                                                    <i className="fa-solid fa-smile" style={{ color: "#3978d3" }}></i>
+                                                </div>
+                                                <div className="option w-7 h-7 rounded-[50%] border-primary-blue border-[2px] flex items-center justify-center cursor-pointer">
+                                                    <i className="fa-solid fa-paperclip" style={{ color: "#3978d3" }}></i>
                                                 </div>
                                             </div>
-                                            <div className="flex gap-2 items-center">
-                                                <button>
-                                                    <div className="option w-7 h-7 rounded-[50%] bg-primary-blue flex items-center justify-center">
-                                                        <i className="fa-solid fa-paper-plane" style={{ color: "#ffffff" }}></i>
-                                                    </div>
-                                                </button>
-                                            </div>
                                         </div>
-                                    </form>
-                                </div>
-                                
+                                        <div className="flex gap-2 items-center">
+                                            <button>
+                                                <div className="option w-7 h-7 rounded-[50%] bg-primary-blue flex items-center justify-center">
+                                                    <i className="fa-solid fa-paper-plane" style={{ color: "#ffffff" }}></i>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
+
+
                         </>
                     }
                 </div>
@@ -203,7 +203,7 @@ export default function Mainpage() {
             </div>
 
             {showAddFriend ? <Addfriend setShowAddFriend={setShowAddFriend} userInfo={userInfo} /> : null}
-            {showRequests ? <Friendrequests setShowFriendRequests={setShowRequests} setReload={setReload} reload={reload} /> : null}
+            {showRequests ? <Friendrequests setShowFriendRequests={setShowRequests} setReload={setReload} reload={reload} socket={socket}/> : null}
         </>
     )
 }

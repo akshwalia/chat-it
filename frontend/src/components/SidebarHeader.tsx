@@ -9,7 +9,7 @@ export default function SidebarHeader({ userInfo, setShowAddFriend, setShowReque
     }
 
     return (
-        <div className="sidebarheader bg-[#e8e8e8] flex items-center justify-between px-6 py-4">
+        <div className="sidebarheader bg-[#e8e8e8] flex flex-grow-0 flex-shrink-0 items-center justify-between px-6 py-4">
             <div className="flex gap-2 items-center">
                 <img src="https://picsum.photos/id/237/200" alt="" className="w-10 h-10 rounded-[50%]" />
                 <div className="" >{userInfo.name}</div>

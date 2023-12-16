@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function Friendrequests({ setShowFriendRequests, setReload, reload }) {
+export default function Friendrequests({ setShowFriendRequests, setReload, reload, socket }) {
     const [friendRequests, setFriendRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [AcceptLoading, setAcceptLoading] = useState('');
@@ -37,6 +37,7 @@ export default function Friendrequests({ setShowFriendRequests, setReload, reloa
                 }
             });
             console.log(response.data);
+            socket.emit('reload_conversations', e.target.id);
             setFriendRequests(friendRequests.filter((req) => req._id !== e.target.id));
             setReload(reload + 1);
         }
