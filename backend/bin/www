@@ -146,4 +146,8 @@ io.on("connection", (socket) => {
     
     callback({status: 'success'});
   });
+
+  socket.on('reload_conversations', (data) => {
+    socket.to(data).emit('reload_conversations');
+  });
 });
