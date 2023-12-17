@@ -99,6 +99,7 @@ const io = new Server(server, {
 
 // Socket.io
 let currentUserId;
+let numberOfUsers = 0;
 io.on("connection", (socket) => {
   console.log("A user connected");
   socket.on("disconnect", () => {
@@ -117,6 +118,10 @@ io.on("connection", (socket) => {
       sender: data.sender,
     });
 
+    if(io.sockets.adapter.rooms.has(data.roomid)){
+      numberOfUsers = io.sockets.adapter.rooms.get(data.roomid).size;
+    }
+
     const conversations = await Conversation.find({conversation_hash: data.roomid}).exec();
 
     conversations[0].last_message = data.message;
@@ -125,20 +130,25 @@ io.on("connection", (socket) => {
     conversations[1].last_sent_time = Date.now();
 
     // Adjusting unread count of the conversation
-    if(conversations[0].owner == data.sender){
-      conversations[0].unread_count = 0;
+    if(numberOfUsers != 2){
+      if(conversations[0].owner == data.sender){
+        conversations[0].unread_count = 0;
+      }
+      else{
+        conversations[0].unread_count += 1;
+      }
+  
+      if(conversations[1].owner == data.sender){
+        conversations[1].unread_count = 0;
+      }
+      else{
+        conversations[1].unread_count += 1;
+      }
     }
     else{
-      conversations[0].unread_count += 1;
-    }
-
-    if(conversations[1].owner == data.sender){
+      conversations[0].unread_count = 0;
       conversations[1].unread_count = 0;
     }
-    else{
-      conversations[1].unread_count += 1;
-    }
-
     
     socket.to(data.roomid).emit("receive_message", data.message);
     socket.to(data.receiver).emit("reload_conversations");
@@ -149,5 +159,9 @@ io.on("connection", (socket) => {
 
   socket.on('reload_conversations', (data) => {
     socket.to(data).emit('reload_conversations');
+  });
+
+  socket.on('typing', (data) => {
+    socket.to(data.roomid).emit('typing', data);
   });
 });
